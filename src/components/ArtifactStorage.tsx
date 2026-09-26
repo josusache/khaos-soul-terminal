@@ -42,8 +42,8 @@ export const RELIC_CARDS_CATALOG: RelicCardMetadata[] = [
     elementCode: 'EARTH // 地 // IGNHUM-CORE',
     stars: 12,
     bpm: '160 BPM // SCHRANZ',
-    cardScanUrl: '/assets/valkhor/card_ruby.jpg',
-    artworkUrl: '/assets/valkhor/art_ruby.jpg',
+    cardScanUrl: './assets/valkhor/card_ruby.jpg',
+    artworkUrl: './assets/valkhor/art_ruby.jpg',
     accentHex: '#EA1D25',
     borderClass: 'border-[#EA1D25]/60 hover:border-[#D6BA72]',
     badgeClass: 'border-[#EA1D25] text-[#EA1D25] bg-[#B5161B]/20',
@@ -60,8 +60,8 @@ export const RELIC_CARDS_CATALOG: RelicCardMetadata[] = [
     elementCode: 'WATER // 水 // ABYSS-PULSE',
     stars: 10,
     bpm: '162 BPM // SCHRANZ',
-    cardScanUrl: '/assets/valkhor/card_sapphire.jpg',
-    artworkUrl: '/assets/valkhor/art_sapphire.jpg',
+    cardScanUrl: './assets/valkhor/card_sapphire.jpg',
+    artworkUrl: './assets/valkhor/art_sapphire.jpg',
     accentHex: '#5B9BD5',
     borderClass: 'border-[#5B9BD5]/50 hover:border-[#D6BA72]',
     badgeClass: 'border-[#5B9BD5] text-[#8EC2F2] bg-[#5B9BD5]/15',
@@ -78,8 +78,8 @@ export const RELIC_CARDS_CATALOG: RelicCardMetadata[] = [
     elementCode: 'DIVINE // 神 // KHAOS-STORM',
     stars: 12,
     bpm: '165 BPM // KHAOS',
-    cardScanUrl: '/assets/valkhor/card_emerald.jpg',
-    artworkUrl: '/assets/valkhor/art_emerald.jpg',
+    cardScanUrl: './assets/valkhor/card_emerald.jpg',
+    artworkUrl: './assets/valkhor/art_emerald.jpg',
     accentHex: '#68B07B',
     borderClass: 'border-[#68B07B]/50 hover:border-[#D6BA72]',
     badgeClass: 'border-[#68B07B] text-[#8CD49F] bg-[#68B07B]/15',
@@ -387,7 +387,7 @@ export const ArtifactStorage: React.FC<ArtifactStorageProps> = ({
 
           <audio
             controls
-            src="/assets/audio/vendex_track_2.mp3"
+            src="./assets/audio/transmission_024.mp3"
             className="w-full h-9 filter invert contrast-125"
           />
         </div>

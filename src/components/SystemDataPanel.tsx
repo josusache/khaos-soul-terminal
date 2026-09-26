@@ -188,7 +188,7 @@ export const SystemDataPanel: React.FC<SystemDataPanelProps> = ({
         >
           <div className="w-14 h-14 border border-[#D6BA72] bg-[#080808] relative overflow-hidden shrink-0">
             <img
-              src="/assets/valkhor/vendex_avatar_dark.jpg"
+              src="./assets/valkhor/vendex_avatar_dark.jpg"
               alt="VENDEX // ONLINE"
               className="w-full h-full object-cover object-top filter contrast-125"
             />

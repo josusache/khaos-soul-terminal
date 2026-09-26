@@ -37,8 +37,8 @@ const WITNESS_CONVERGENCES: WitnessShowRecord[] = [
     coordinates: '41.3874° N, 2.1686° E',
     peakBpm: 160,
     soulsSynchronized: '4,200',
-    memoryPhoto: '/assets/valkhor/vendex_legion.jpg',
-    memoryAudio: '/assets/audio/transmission_031.mp3',
+    memoryPhoto: './assets/valkhor/vendex_legion.jpg',
+    memoryAudio: './assets/audio/transmission_031.mp3',
     memoryTitle: 'MEMORY_01 // BARCELONA ORIGIN RUPTURE',
     memoryLog: [
       '03:14 AM — MASS SYNCHRONIZATION PEAK DETECTED.',
@@ -57,8 +57,8 @@ const WITNESS_CONVERGENCES: WitnessShowRecord[] = [
     coordinates: '40.4168° N, 3.7038° W',
     peakBpm: 158,
     soulsSynchronized: '6,500',
-    memoryPhoto: '/assets/valkhor/golden_mask_stage.png',
-    memoryAudio: '/assets/audio/transmission_029.mp3',
+    memoryPhoto: './assets/valkhor/golden_mask_stage.png',
+    memoryAudio: './assets/audio/transmission_029.mp3',
     memoryTitle: 'MEMORY_02 // MADRID THERMAL OVERLOAD',
     memoryLog: [
       '04:02 AM — IGNHUM THERMAL FREQUENCY Flooded THE CENTRAL CHAMBER.',
@@ -77,8 +77,8 @@ const WITNESS_CONVERGENCES: WitnessShowRecord[] = [
     coordinates: '51.9244° N, 4.4777° E',
     peakBpm: 162,
     soulsSynchronized: '8,400',
-    memoryPhoto: '/assets/valkhor/lost_soul_circle.jpg',
-    memoryAudio: '/assets/audio/transmission_024.mp3',
+    memoryPhoto: './assets/valkhor/lost_soul_circle.jpg',
+    memoryAudio: './assets/audio/transmission_024.mp3',
     memoryTitle: 'MEMORY_03 // MAASSILO SUB-TERRESTRIAL RESONANCE',
     memoryLog: [
       'CONCRETE SILO VIBRATION EXCEEDED STRUCTURAL THRESHOLD.',
@@ -96,8 +96,8 @@ const WITNESS_CONVERGENCES: WitnessShowRecord[] = [
     coordinates: '33.4489° S, 70.6693° W',
     peakBpm: 160,
     soulsSynchronized: '5,900',
-    memoryPhoto: '/assets/valkhor/lost_soul_trio.jpg',
-    memoryAudio: '/assets/audio/transmission_019.mp3',
+    memoryPhoto: './assets/valkhor/lost_soul_trio.jpg',
+    memoryAudio: './assets/audio/transmission_019.mp3',
     memoryTitle: 'MEMORY_04 // SOUTHERN HEMISPHERE AWAKENING',
     memoryLog: [
       'THE ARENA TRANSFORMED INTO AN ORBITAL RING AROUND VALKHOR.',

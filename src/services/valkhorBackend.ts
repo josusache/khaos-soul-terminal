@@ -184,7 +184,7 @@ function createInitialDatabase(): ValkhorDatabaseState {
           'RAW SUB-BASS TELEMETRY CAPTURED FROM LIVE RITUAL VISUAL FRAME 0041.',
           'AVAILABLE FOR PLAYBACK IN YOUR SOUL RECORD & TRANSMISSIONS VAULT.',
         ],
-        audioUrl: '/assets/audio/vendex_track_4.mp3',
+        audioUrl: './assets/audio/transmission_031.mp3',
         vendexNote: 'FEEL THE FREQUENCY IN THE BONE.',
       },
       {
@@ -198,7 +198,7 @@ function createInitialDatabase(): ValkhorDatabaseState {
           'UNLOCKED VIA PHYSICAL VINYL / ARTIFACT CODE [VX-███].',
           'ETCHED INTO THE INNERWAX OF THE CONDUIT DISC: "THE MASK IS NOT WORN TO HIDE. IT IS WORN TO SEE."',
         ],
-        mediaUrl: '/assets/valkhor/mask_closeup.jpg',
+        mediaUrl: './assets/valkhor/mask_closeup.jpg',
         vendexNote: 'ETCHED IN MATTER.',
       },
       {
@@ -213,8 +213,8 @@ function createInitialDatabase(): ValkhorDatabaseState {
           'BY BINDING VENDEX // RUBY, VENDEX // SAPPHIRE, AND VENDEX // EMERALD TO THE SAME SOUL, YOU HAVE RECONSTRUCTED THE PRIMORDIAL TRIAD.',
           'GRANTED PERMANENT DESIGNATION: [TRIAD_HOLDER] AND DIRECT ACCESS TO THE TRIAD SANCTUM.',
         ],
-        mediaUrl: '/assets/valkhor/valkhor_symbol_card.jpg',
-        audioUrl: '/assets/audio/vendex_track_2.mp3',
+        mediaUrl: './assets/valkhor/valkhor_symbol_card.jpg',
+        audioUrl: './assets/audio/transmission_024.mp3',
         vendexNote: 'THREE STONES. ONE FLAME. THE DOOR IS OPEN.',
       },
       {

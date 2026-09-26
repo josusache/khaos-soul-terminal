@@ -27,27 +27,27 @@ const LOST_SOUL_PORTRAIT_CROPS: {
   scale: number;
   rotate?: number;
 }[] = [
-  { src: '/assets/valkhor/circle_soul_1.jpg', pos: '50% 50%', scale: 1.08 },
-  { src: '/assets/valkhor/circle_soul_2.jpg', pos: '50% 50%', scale: 1.08 },
-  { src: '/assets/valkhor/blur_soul_1.jpg', pos: '50% 42%', scale: 1.12 },
-  { src: '/assets/valkhor/circle_soul_3.jpg', pos: '50% 50%', scale: 1.08 },
+  { src: './assets/valkhor/circle_soul_1.jpg', pos: '50% 50%', scale: 1.08 },
+  { src: './assets/valkhor/circle_soul_2.jpg', pos: '50% 50%', scale: 1.08 },
+  { src: './assets/valkhor/blur_soul_1.jpg', pos: '50% 42%', scale: 1.12 },
+  { src: './assets/valkhor/circle_soul_3.jpg', pos: '50% 50%', scale: 1.08 },
   {
-    src: '/assets/valkhor/mask_closeup.jpg',
+    src: './assets/valkhor/mask_closeup.jpg',
     pos: '50% 48%',
     scale: 1.14,
     rotate: -4.5,
   },
-  { src: '/assets/valkhor/circle_soul_4.jpg', pos: '50% 50%', scale: 1.08 },
-  { src: '/assets/valkhor/blur_soul_2.jpg', pos: '50% 42%', scale: 1.12 },
-  { src: '/assets/valkhor/circle_soul_5.jpg', pos: '50% 50%', scale: 1.08 },
-  { src: '/assets/valkhor/lost_soul_duo.jpg', pos: '23% 38%', scale: 1.55 },
-  { src: '/assets/valkhor/lost_soul_trio.jpg', pos: '20% 34%', scale: 1.95 },
-  { src: '/assets/valkhor/lost_soul_group.jpg', pos: '49% 58%', scale: 1.85 },
-  { src: '/assets/valkhor/lost_soul_trio.jpg', pos: '56% 35%', scale: 1.9 },
-  { src: '/assets/valkhor/lost_soul_group.jpg', pos: '72% 40%', scale: 2.35 },
-  { src: '/assets/valkhor/lost_soul_duo.jpg', pos: '75% 55%', scale: 1.85 },
-  { src: '/assets/valkhor/lost_soul_trio.jpg', pos: '82% 28%', scale: 1.65 },
-  { src: '/assets/valkhor/lost_soul_circle.jpg', pos: '50% 50%', scale: 1.18 },
+  { src: './assets/valkhor/circle_soul_4.jpg', pos: '50% 50%', scale: 1.08 },
+  { src: './assets/valkhor/blur_soul_2.jpg', pos: '50% 42%', scale: 1.12 },
+  { src: './assets/valkhor/circle_soul_5.jpg', pos: '50% 50%', scale: 1.08 },
+  { src: './assets/valkhor/lost_soul_duo.jpg', pos: '23% 38%', scale: 1.55 },
+  { src: './assets/valkhor/lost_soul_trio.jpg', pos: '20% 34%', scale: 1.95 },
+  { src: './assets/valkhor/lost_soul_group.jpg', pos: '49% 58%', scale: 1.85 },
+  { src: './assets/valkhor/lost_soul_trio.jpg', pos: '56% 35%', scale: 1.9 },
+  { src: './assets/valkhor/lost_soul_group.jpg', pos: '72% 40%', scale: 2.35 },
+  { src: './assets/valkhor/lost_soul_duo.jpg', pos: '75% 55%', scale: 1.85 },
+  { src: './assets/valkhor/lost_soul_trio.jpg', pos: '82% 28%', scale: 1.65 },
+  { src: './assets/valkhor/lost_soul_circle.jpg', pos: '50% 50%', scale: 1.18 },
 ];
 
 const LostSoulPortrait: React.FC<{

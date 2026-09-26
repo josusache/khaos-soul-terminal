@@ -205,7 +205,7 @@ export const MaskSynchronization: React.FC<MaskSynchronizationProps> = ({
             <div className="relative w-[330px] sm:w-[380px] h-[380px] sm:h-[420px] flex items-center justify-center overflow-hidden">
               {/* Layer 1: Ghostly X-Ray / Dark Base Silhouette (Always faintly visible) */}
               <img
-                src="/assets/valkhor/mask_closeup.jpg"
+                src="./assets/valkhor/mask_closeup.jpg"
                 alt="Lost Soul Mask Base Scan"
                 className="absolute inset-0 w-full h-full object-cover object-center -rotate-[4.5deg] scale-[1.12] filter grayscale contrast-150 brightness-[0.28] opacity-45 select-none pointer-events-none"
               />
@@ -218,7 +218,7 @@ export const MaskSynchronization: React.FC<MaskSynchronizationProps> = ({
                 }}
               >
                 <img
-                  src="/assets/valkhor/mask_closeup.jpg"
+                  src="./assets/valkhor/mask_closeup.jpg"
                   alt="Synchronized Lost Soul Mask"
                   className={`w-full h-full object-cover object-center -rotate-[4.5deg] scale-[1.12] transition-all duration-700 select-none pointer-events-none ${
                     isComplete

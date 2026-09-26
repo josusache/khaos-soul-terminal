@@ -31,8 +31,8 @@ const RESTRICTED_VAULTS: RestrictedVaultItem[] = [
     pinCode: '0046',
     type: 'CLASSIFIED AUDIO + BLUEPRINT',
     classification: 'CLEARANCE // PIN REQUIRED',
-    audioUrl: '/assets/audio/transmission_031.mp3',
-    visualAsset: '/assets/valkhor/vendex_legion.jpg',
+    audioUrl: './assets/audio/transmission_031.mp3',
+    visualAsset: './assets/valkhor/vendex_legion.jpg',
     secretContent: [
       'RAW UNMASTERED FREQUENCY EXTRACTED DIRECTLY FROM VALKHOR ORB-01.',
       'THIS TRANSMISSION WAS DISTRIBUTED EXCLUSIVELY VIA PHYSICAL EVENT CIPHERS.',
@@ -48,8 +48,8 @@ const RESTRICTED_VAULTS: RestrictedVaultItem[] = [
     pinCode: '2026',
     type: 'VISUAL TELEMETRY + AUDIO',
     classification: 'CLEARANCE // EVENT PIN',
-    audioUrl: '/assets/audio/transmission_029.mp3',
-    visualAsset: '/assets/valkhor/golden_mask_stage.png',
+    audioUrl: './assets/audio/transmission_029.mp3',
+    visualAsset: './assets/valkhor/golden_mask_stage.png',
     secretContent: [
       'INTERNAL VISUAL TELEMETRY FROM THE ALTAR OF CONVERGENCE.',
       'CONTAINS ACOUSTIC CALIBRATION PARAMETERS FOR MASS AWAKENING.',
@@ -65,8 +65,8 @@ const RESTRICTED_VAULTS: RestrictedVaultItem[] = [
     pinCode: '8400',
     type: 'EVENT EXCLUSIVE TRANSMISSION',
     classification: 'CLEARANCE // EVENT PIN',
-    audioUrl: '/assets/audio/transmission_024.mp3',
-    visualAsset: '/assets/valkhor/lost_soul_circle.jpg',
+    audioUrl: './assets/audio/transmission_024.mp3',
+    visualAsset: './assets/valkhor/lost_soul_circle.jpg',
     secretContent: [
       'RESTRICTED RECORDING CAPTURED INSIDE SECTOR_NL.',
       'PHYSICAL ATTENDANCE VERIFICATION COMPLETED.',

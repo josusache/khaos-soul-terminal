@@ -208,7 +208,7 @@ export const KhaosFrequencies: React.FC<KhaosFrequenciesProps> = ({
 
     // Play low-level Vendex stem loop if DESERT layer is active
     if (!vocalAudioRef.current) {
-      const a = new Audio('/assets/audio/transmission_031.mp3');
+      const a = new Audio('./assets/audio/transmission_031.mp3');
       a.loop = true;
       vocalAudioRef.current = a;
     }

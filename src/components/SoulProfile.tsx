@@ -287,7 +287,7 @@ export const SoulProfile: React.FC<SoulProfileProps> = ({
     img.crossOrigin = 'anonymous';
     img.onload = () => drawCard(img);
     img.onerror = () => drawCard();
-    img.src = '/assets/valkhor/mask_closeup.jpg';
+    img.src = './assets/valkhor/mask_closeup.jpg';
   }, [soulState, resonanceLabel, statusLabel, boundArtifacts]);
 
   const handleExportPng = () => {
@@ -550,11 +550,11 @@ export const SoulProfile: React.FC<SoulProfileProps> = ({
                     {boundArtifacts.map((a) => {
                       const cardImg =
                         a.archetype === 'RUBY'
-                          ? '/assets/valkhor/card_ruby.jpg'
+                          ? './assets/valkhor/card_ruby.jpg'
                           : a.archetype === 'SAPPHIRE'
-                          ? '/assets/valkhor/card_sapphire.jpg'
+                          ? './assets/valkhor/card_sapphire.jpg'
                           : a.archetype === 'EMERALD'
-                          ? '/assets/valkhor/card_emerald.jpg'
+                          ? './assets/valkhor/card_emerald.jpg'
                           : null;
                       return (
                         <div

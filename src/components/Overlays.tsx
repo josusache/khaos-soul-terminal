@@ -158,7 +158,7 @@ export const VendexInterference: React.FC<VendexInterferenceBannerProps> = ({
         >
           <div className="w-6 h-6 border border-[#D6BA72]/70 bg-[#050505] relative overflow-hidden shrink-0">
             <img
-              src="/assets/valkhor/vendex_avatar_dark.jpg"
+              src="./assets/valkhor/vendex_avatar_dark.jpg"
               alt="VENDEX"
               className="w-full h-full object-cover object-top"
             />

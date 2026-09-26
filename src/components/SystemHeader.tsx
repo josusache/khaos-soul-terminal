@@ -151,7 +151,7 @@ export const SystemHeader: React.FC<SystemHeaderProps> = ({
           >
             <div className="w-8 h-8 sm:w-9 sm:h-9 border border-[#D6BA72]/70 bg-[#050505] relative overflow-hidden shrink-0">
               <img
-                src="/assets/valkhor/vendex_avatar_dark.jpg"
+                src="./assets/valkhor/vendex_avatar_dark.jpg"
                 alt="VENDEX // ONLINE"
                 className="w-full h-full object-cover object-top filter contrast-125"
               />
