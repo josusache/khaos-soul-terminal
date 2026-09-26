@@ -29,6 +29,37 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
   const activityRef = useRef(activityState);
   activityRef.current = activityState;
 
+  // Video Editor Soul sub-minimum energy state (always 1% - 3%, briefly spikes to 5% on stimulant before crashing back to 1%)
+  const [editorEnergy, setEditorEnergy] = useState<number>(2);
+  const [editorStimulantLog, setEditorStimulantLog] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setEditorEnergy((prev) => {
+        if (prev > 3) return prev;
+        return prev === 1 ? 2 : prev === 2 ? 3 : 1;
+      });
+    }, 3200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleInjectCaffeine = () => {
+    soundEngine.playGlitch(0.9);
+    setEditorEnergy(5);
+    setEditorStimulantLog(
+      'CAFFEINE INFUSION DETECTED (+3%) // WARNING: NEW TIMELINE REVISION REQUESTED — ENERGY COLLAPSING BACK TO 01%...'
+    );
+    window.setTimeout(() => {
+      soundEngine.playAlarm();
+      setEditorEnergy(1);
+    }, 1900);
+    window.setTimeout(() => {
+      setEditorStimulantLog(null);
+    }, 5200);
+  };
+
   // Cursor inactivity detection (Section 13)
   useEffect(() => {
     let t1: number | null = null;
@@ -39,7 +70,10 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
       if (t1) clearTimeout(t1);
       if (t2) clearTimeout(t2);
 
-      if (activityRef.current === 'LOST_1' || activityRef.current === 'LOST_2') {
+      if (
+        activityRef.current === 'LOST_1' ||
+        activityRef.current === 'LOST_2'
+      ) {
         setActivityState('RESTORED');
         soundEngine.playClick(1400);
         if (tRestore) clearTimeout(tRestore);
@@ -142,7 +176,13 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
 
       ctx.setLineDash([4, 8]);
       ctx.beginPath();
-      ctx.arc(cx, cy, baseRadius * 1.36, time * 0.0002, time * 0.0002 + Math.PI * 1.5);
+      ctx.arc(
+        cx,
+        cy,
+        baseRadius * 1.36,
+        time * 0.0002,
+        time * 0.0002 + Math.PI * 1.5
+      );
       ctx.stroke();
       ctx.setLineDash([]);
 
@@ -159,7 +199,8 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
 
       const isLost =
         activityRef.current === 'LOST_1' || activityRef.current === 'LOST_2';
-      const isCorrupted = soulState.vendexInterferenceLevel >= 60 || soulState.maskClaimed;
+      const isCorrupted =
+        soulState.vendexInterferenceLevel >= 60 || soulState.maskClaimed;
 
       const projected: { x: number; y: number; z: number }[] = [];
 
@@ -167,7 +208,8 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
         const distortion =
           Math.sin(time * 0.003 + pt.theta * 4 + pt.phi * 3) *
           (6 + speed * 0.8 + (isLost ? 18 : 0));
-        const r = baseRadius + distortion + (idx % 3 === 0 ? pt.rOffset * 0.4 : 0);
+        const r =
+          baseRadius + distortion + (idx % 3 === 0 ? pt.rOffset * 0.4 : 0);
 
         const x0 = r * Math.sin(pt.theta) * Math.cos(pt.phi);
         const y0 = r * Math.cos(pt.theta);
@@ -194,7 +236,10 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
         const p1 = projected[i];
         if (i + 1 < projected.length && (i + 1) % numLon !== 0) {
           const p2 = projected[i + 1];
-          const alpha = Math.max(0.06, (p1.z + baseRadius) / (2.5 * baseRadius));
+          const alpha = Math.max(
+            0.06,
+            (p1.z + baseRadius) / (2.5 * baseRadius)
+          );
           ctx.strokeStyle = isLost
             ? `rgba(234, 29, 37, ${alpha * 0.65})`
             : isCorrupted
@@ -523,7 +568,9 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
                 onMouseEnter={() => soundEngine.playHover()}
                 className="py-3 px-4 border border-[#D6BA72] bg-[#B99A53]/15 hover:bg-[#B99A53]/30 text-[#EDEDEA] font-mono text-xs tracking-[0.2em] uppercase transition-colors text-center"
               >
-                {soulState.resonance ? 'RE-CALIBRATE LINK' : 'INITIATE KHAOS LINK'}
+                {soulState.resonance
+                  ? 'RE-CALIBRATE LINK'
+                  : 'INITIATE KHAOS LINK'}
               </button>
 
               <button
@@ -534,9 +581,173 @@ export const SoulStatus: React.FC<SoulStatusProps> = ({
                 onMouseEnter={() => soundEngine.playHover()}
                 className="py-3 px-4 border border-[#EDEDEA]/25 hover:border-[#D6BA72] text-[#EDEDEA]/80 hover:text-[#D6BA72] font-mono text-xs tracking-[0.2em] uppercase transition-colors text-center"
               >
-                {soulState.maskClaimed ? 'VIEW MASK CONDUIT' : 'SYNCHRONIZE MASK'}
+                {soulState.maskClaimed
+                  ? 'VIEW MASK CONDUIT'
+                  : 'SYNCHRONIZE MASK'}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* =================================================================== */}
+      {/* DEDICATED SECTION: VIDEO EDITOR SOUL (CRITICAL DEPLETION MONITOR)   */}
+      {/* =================================================================== */}
+      <div className="border-2 border-[#EA1D25]/60 bg-[#080808] p-5 sm:p-6 space-y-5 relative overflow-hidden">
+        {/* Top Warning Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EDEDEA]/15 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 bg-[#EA1D25] animate-pulse-alert shrink-0" />
+            <div>
+              <div className="font-mono text-[10px] tracking-[0.26em] text-[#EA1D25] font-bold">
+                SUB-KERNEL RENDER FARM // CRITICAL BIOMETRIC ALERT
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-[0.22em] text-[#EDEDEA] mt-0.5">
+                VIDEO EDITOR SOUL // STATUS: DEMACRADO
+              </h2>
+            </div>
+          </div>
+
+          <div className="border border-[#EA1D25] bg-[#B5161B]/20 px-3.5 py-2 font-mono text-xs tracking-[0.22em] text-[#EA1D25] font-bold self-start sm:self-auto">
+            ENERGY RESERVE // 0{editorEnergy}% [BELOW MINIMUM]
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          {/* Left 4 Cols: Surveillance Capture of the Exhausted Video Editor Soul */}
+          <div className="lg:col-span-4 bg-[#050505] border border-[#EA1D25]/50 p-2.5 space-y-2 relative">
+            <div className="relative aspect-[15/16] overflow-hidden border border-[#EDEDEA]/15 bg-[#050505]">
+              <img
+                src="./assets/valkhor/video_editor_soul.jpg"
+                alt="Video Editor Soul — Critical Exhaustion"
+                className="w-full h-full object-cover filter contrast-125 brightness-90"
+              />
+              {/* Red critical scanline & vignette overlay */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    'radial-gradient(circle at 50% 45%, transparent 45%, rgba(5, 5, 5, 0.85) 100%)',
+                }}
+              />
+              <div className="absolute inset-x-0 top-1/2 h-[1px] bg-[#EA1D25]/45 pointer-events-none" />
+
+              {/* Targeting Corner Reticles */}
+              <span className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-[#EA1D25]" />
+              <span className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-[#EA1D25]" />
+              <span className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-[#EA1D25]" />
+              <span className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-[#EA1D25]" />
+
+              <div className="absolute top-2 left-3 bg-[#050505]/85 px-2 py-0.5 font-mono text-[9px] tracking-[0.2em] text-[#EA1D25] border border-[#EA1D25]/40">
+                CAM_RENDER_04 // 04:47 AM
+              </div>
+              <div className="absolute bottom-2 right-3 bg-[#050505]/90 px-2 py-0.5 font-mono text-[10px] tracking-[0.2em] text-[#EA1D25] font-bold border border-[#EA1D25]">
+                VITALS: CRITICAL (0{editorEnergy}%)
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.18em] text-[#EDEDEA]/55 px-1">
+              <span>ID // SOUL_EDITOR_00</span>
+              <span className="text-[#EA1D25] font-bold">SLEEP: 00.0 HRS</span>
+            </div>
+          </div>
+
+          {/* Right 8 Cols: Sub-Minimum Energy Telemetry & Caffeine Override */}
+          <div className="lg:col-span-8 space-y-4 font-mono">
+            {/* Sub-Minimum Energy Bar */}
+            <div className="border border-[#EA1D25]/50 bg-[#050505] p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs tracking-[0.2em]">
+                <span className="text-[#EDEDEA]/75">
+                  VITAL ENERGY RESERVE (MINIMUM REQUIRED: 25%)
+                </span>
+                <span className="text-[#EA1D25] font-bold animate-pulse">
+                  0{editorEnergy}% // SUB-MINIMUM CRITICAL
+                </span>
+              </div>
+              <div className="w-full h-3 bg-[#080808] border border-[#EA1D25]/40 relative overflow-hidden">
+                {/* Minimum threshold marker at 25% */}
+                <div
+                  className="absolute top-0 bottom-0 w-[2px] bg-[#D6BA72]/70 z-10"
+                  style={{ left: '25%' }}
+                  title="MINIMUM SAFE THRESHOLD (25%)"
+                />
+                <div
+                  className="h-full bg-[#EA1D25] transition-all duration-300"
+                  style={{ width: `${editorEnergy}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[9px] tracking-[0.18em] text-[#EDEDEA]/40">
+                <span>0% [COLLAPSE]</span>
+                <span className="text-[#D6BA72]/70">▲ 25% MIN THRESHOLD</span>
+                <span>100% [ IMPOSSIBLE ]</span>
+              </div>
+            </div>
+
+            {/* Exhaustion Readout Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs tracking-[0.16em]">
+              <div className="border border-[#EDEDEA]/15 bg-[#050505] p-3.5 space-y-1">
+                <div className="text-[9px] text-[#EDEDEA]/45">
+                  PHYSICAL CONDITION //
+                </div>
+                <div className="text-[#EA1D25] font-bold">
+                  DEMACRADO // SEVERE TIMELINE FATIGUE
+                </div>
+              </div>
+
+              <div className="border border-[#EDEDEA]/15 bg-[#050505] p-3.5 space-y-1">
+                <div className="text-[9px] text-[#EDEDEA]/45">
+                  SLEEP DEPRIVATION INDEX //
+                </div>
+                <div className="text-[#EA1D25] font-bold">
+                  99.4% (NO REM DETECTED)
+                </div>
+              </div>
+
+              <div className="border border-[#EDEDEA]/15 bg-[#050505] p-3.5 space-y-1">
+                <div className="text-[9px] text-[#EDEDEA]/45">
+                  LIFE SUPPORT CONDUIT //
+                </div>
+                <div className="text-[#D6BA72] font-bold">
+                  CAFFEINE + GPU THERMAL RADIATION
+                </div>
+              </div>
+
+              <div className="border border-[#EDEDEA]/15 bg-[#050505] p-3.5 space-y-1">
+                <div className="text-[9px] text-[#EDEDEA]/45">
+                  ACTIVE RENDER QUEUE //
+                </div>
+                <div className="text-[#EDEDEA] font-bold">
+                  VENDEX_FINAL_V14_DEF_OK_2.MP4
+                </div>
+              </div>
+            </div>
+
+            {/* Last Known Thought */}
+            <div className="border border-[#B99A53]/40 bg-[#050505] p-4 space-y-1.5">
+              <div className="text-[10px] tracking-[0.22em] text-[#8E7443]">
+                INTERCEPTED NEURAL LOG // VIDEO EDITOR SOUL:
+              </div>
+              <blockquote className="text-xs tracking-[0.15em] text-[#EDEDEA]/90 italic">
+                &ldquo;SOLO UN GLITCH MÁS EN EL DROP DE 160 BPM Y ME VOY A
+                DORMIR... LLEVO RENDERIZANDO DESDE QUE EMPEZÓ LA ERA DE
+                VALKHOR.&rdquo;
+              </blockquote>
+            </div>
+
+            {editorStimulantLog && (
+              <div className="border border-[#EA1D25] bg-[#B5161B]/20 p-3 text-[11px] tracking-[0.18em] text-[#EA1D25] font-bold animate-flicker">
+                &gt; {editorStimulantLog}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleInjectCaffeine}
+              onMouseEnter={() => soundEngine.playHover()}
+              className="w-full py-3.5 px-4 border border-[#EA1D25] bg-[#B5161B]/20 hover:bg-[#EA1D25] text-[#EDEDEA] hover:text-[#050505] font-display text-xl font-bold tracking-[0.26em] uppercase transition-colors"
+            >
+              [INJECT EMERGENCY CAFFEINE // ATTEMPT ENERGY RECOVERY]
+            </button>
           </div>
         </div>
       </div>

@@ -220,6 +220,47 @@ export const SystemDataPanel: React.FC<SystemDataPanelProps> = ({
           </div>
         </div>
 
+        {/* VIDEO EDITOR SOUL // SUB-MINIMUM ENERGY WIDGET */}
+        <button
+          onClick={() => {
+            soundEngine.playClick();
+            onSelectSection('SOUL_STATUS');
+          }}
+          className="w-full text-left border border-[#EA1D25]/45 bg-[#050505] hover:border-[#EA1D25] p-2.5 flex items-center gap-3 relative transition-colors group"
+          data-tooltip="SUB-KERNEL RENDER SLAVE // ALWAYS BELOW MIN ENERGY"
+        >
+          <div className="w-11 h-11 border border-[#EA1D25]/70 bg-[#080808] relative overflow-hidden shrink-0">
+            <img
+              src="./assets/valkhor/video_editor_soul.jpg"
+              alt="VIDEO EDITOR SOUL"
+              className="w-full h-full object-cover object-center filter contrast-125 brightness-90"
+            />
+            <span className="absolute bottom-0.5 right-0.5 w-2 h-2 bg-[#EA1D25] border border-[#050505] animate-ping" />
+          </div>
+
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center justify-between gap-1">
+              <span className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#EDEDEA] truncate group-hover:text-[#EA1D25] transition-colors">
+                VIDEO EDITOR SOUL
+              </span>
+              <span className="font-mono text-[8px] tracking-[0.16em] text-[#EA1D25] border border-[#EA1D25]/60 bg-[#EA1D25]/15 px-1 py-[1px] shrink-0 animate-pulse">
+                DEMACRADO
+              </span>
+            </div>
+            <div className="flex items-center justify-between font-mono text-[8px] tracking-[0.15em] text-[#EDEDEA]/50">
+              <span>ENERGY // SUB-MIN</span>
+              <span className="text-[#EA1D25] font-bold">02% [CRITICAL]</span>
+            </div>
+            <div className="w-full h-1 bg-[#EDEDEA]/10 relative overflow-hidden">
+              <div className="h-full bg-[#EA1D25] w-[3%] animate-pulse" />
+              <div
+                className="absolute top-0 bottom-0 w-[1px] bg-[#D6BA72]/60"
+                style={{ left: '25%' }}
+              />
+            </div>
+          </div>
+        </button>
+
         {/* Active Module Context */}
         <div
           className="border border-[#EDEDEA]/15 bg-[#050505] p-3.5 space-y-2.5"
