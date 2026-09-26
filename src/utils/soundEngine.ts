@@ -4,6 +4,7 @@
 class MachineAudioEngine {
   private ctx: AudioContext | null = null;
   private enabled: boolean = true;
+  private unlocked: boolean = false;
   private startingDrone: boolean = false;
   private humOsc1: OscillatorNode | null = null;
   private humOsc2: OscillatorNode | null = null;
@@ -22,14 +23,70 @@ class MachineAudioEngine {
     if (typeof window !== 'undefined') {
       const unlock = () => {
         if (!this.enabled) return;
-        const ctx = this.ensureContext();
-        if (ctx && ctx.state === 'running' && !this.humOsc1) {
-          this.startAmbientDrone();
-        }
+        this.unlockMobileAudio();
       };
-      window.addEventListener('pointerdown', unlock, { passive: true });
-      window.addEventListener('keydown', unlock, { passive: true });
-      window.addEventListener('touchstart', unlock, { passive: true });
+      // Register across all mobile/desktop gesture events (iOS Safari requires touchend/click)
+      window.addEventListener('touchstart', unlock, {
+        passive: true,
+        capture: true,
+      });
+      window.addEventListener('touchend', unlock, {
+        passive: true,
+        capture: true,
+      });
+      window.addEventListener('pointerdown', unlock, {
+        passive: true,
+        capture: true,
+      });
+      window.addEventListener('click', unlock, {
+        passive: true,
+        capture: true,
+      });
+      window.addEventListener('keydown', unlock, {
+        passive: true,
+        capture: true,
+      });
+    }
+  }
+
+  private unlockMobileAudio(): void {
+    try {
+      // iOS 17+ AudioSession API: set to 'playback' so Web Audio plays even if hardware silent switch is on
+      const nav = navigator as unknown as {
+        audioSession?: { type: string };
+      };
+      if (nav.audioSession && nav.audioSession.type !== 'playback') {
+        nav.audioSession.type = 'playback';
+      }
+    } catch {
+      // Ignore if unsupported
+    }
+
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+
+    if (ctx.state !== 'running') {
+      ctx.resume().catch(() => {});
+    }
+
+    // Play a 1-sample silent buffer to forcibly unlock iOS WebKit AudioContext on gesture
+    if (!this.unlocked) {
+      try {
+        const buffer = ctx.createBuffer(1, 1, 22050);
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(ctx.destination);
+        source.start(0);
+        if (ctx.state === 'running') {
+          this.unlocked = true;
+        }
+      } catch {
+        // Ignore unlock buffer errors
+      }
+    }
+
+    if (this.enabled && !this.humOsc1 && !this.startingDrone) {
+      this.startAmbientDrone();
     }
   }
 
@@ -44,10 +101,15 @@ class MachineAudioEngine {
         this.ctx = new AudioCtx();
       }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
+    if (
+      this.ctx &&
+      (this.ctx.state === 'suspended' ||
+        (this.ctx.state as string) === 'interrupted')
+    ) {
       this.ctx
         .resume()
         .then(() => {
+          this.unlocked = true;
           if (this.enabled && !this.humOsc1 && !this.startingDrone) {
             this.startAmbientDrone();
           }
@@ -66,17 +128,14 @@ class MachineAudioEngine {
       this.disable();
     } else {
       this.enable();
+      this.playClick(1400);
     }
     return this.enabled;
   }
 
   public enable(): void {
     this.enabled = true;
-    const ctx = this.ensureContext();
-    if (!ctx) return;
-    if (ctx.state === 'running' && !this.humOsc1 && !this.startingDrone) {
-      this.startAmbientDrone();
-    }
+    this.unlockMobileAudio();
   }
 
   public disable(): void {
@@ -96,24 +155,27 @@ class MachineAudioEngine {
     try {
       const masterGain = ctx.createGain();
       masterGain.gain.setValueAtTime(0.001, ctx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.038, ctx.currentTime + 1.2);
+      masterGain.gain.exponentialRampToValueAtTime(
+        0.042,
+        ctx.currentTime + 1.2
+      );
       masterGain.connect(ctx.destination);
       this.humGain = masterGain;
 
-      // 54Hz deep electrical reactor hum
+      // 54Hz deep electrical reactor hum + 108Hz harmonic for mobile audibility
       const osc1 = ctx.createOscillator();
       osc1.type = 'sawtooth';
       osc1.frequency.setValueAtTime(54, ctx.currentTime);
 
-      // 27Hz sub-harmonic pulse
+      // 108Hz upper harmonic
       const osc2 = ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(27.05, ctx.currentTime);
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(108.1, ctx.currentTime);
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(115, ctx.currentTime);
-      filter.Q.setValueAtTime(4.5, ctx.currentTime);
+      filter.frequency.setValueAtTime(180, ctx.currentTime);
+      filter.Q.setValueAtTime(3.5, ctx.currentTime);
 
       osc1.connect(filter);
       osc2.connect(filter);
@@ -145,7 +207,7 @@ class MachineAudioEngine {
       bandpass.Q.setValueAtTime(2.0, ctx.currentTime);
 
       const nGain = ctx.createGain();
-      nGain.gain.setValueAtTime(0.006, ctx.currentTime);
+      nGain.gain.setValueAtTime(0.008, ctx.currentTime);
 
       noise.connect(bandpass);
       bandpass.connect(nGain);
@@ -191,11 +253,11 @@ class MachineAudioEngine {
     }
   }
 
-  // Mechanical relay click
-  public playClick(freq = 1200): void {
+  // Mechanical relay click (schedules even while ctx.resume() is resolving on mobile tap)
+  public playClick(freq = 1350): void {
     if (!this.enabled) return;
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
@@ -204,16 +266,16 @@ class MachineAudioEngine {
 
       osc.type = 'square';
       osc.frequency.setValueAtTime(freq, now);
-      osc.frequency.exponentialRampToValueAtTime(180, now + 0.025);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.038);
 
-      gain.gain.setValueAtTime(0.06, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.028);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.042);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.03);
+      osc.stop(now + 0.045);
     } catch {
       // Ignore audio scheduling errors
     }
@@ -227,7 +289,7 @@ class MachineAudioEngine {
     this.lastHoverTime = nowMs;
 
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
@@ -236,16 +298,16 @@ class MachineAudioEngine {
 
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(2400, now);
-      osc.frequency.exponentialRampToValueAtTime(800, now + 0.009);
+      osc.frequency.exponentialRampToValueAtTime(850, now + 0.014);
 
-      gain.gain.setValueAtTime(0.02, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.01);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.016);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.012);
+      osc.stop(now + 0.018);
     } catch {
       // Ignore audio scheduling errors
     }
@@ -255,11 +317,11 @@ class MachineAudioEngine {
   public playGlitch(intensity = 1): void {
     if (!this.enabled) return;
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
-      const duration = 0.08 * Math.min(2.5, Math.max(0.4, intensity));
+      const duration = 0.09 * Math.min(2.5, Math.max(0.4, intensity));
       const bufferSize = Math.floor(ctx.sampleRate * duration);
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -273,11 +335,11 @@ class MachineAudioEngine {
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(400 + Math.random() * 2600, now);
-      filter.Q.setValueAtTime(6, now);
+      filter.frequency.setValueAtTime(650 + Math.random() * 2400, now);
+      filter.Q.setValueAtTime(4.5, now);
 
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.09 * intensity, now);
+      gain.gain.setValueAtTime(0.16 * intensity, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
       noise.connect(filter);
@@ -291,44 +353,44 @@ class MachineAudioEngine {
     }
   }
 
-  // Deep Vendex interference sub-pulse
+  // Deep Vendex interference sub-pulse (with mid-range harmonics for mobile speakers)
   public playVendexPulse(): void {
     if (!this.enabled) return;
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
-      const sub = ctx.createOscillator();
+      const mid = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(92, now);
-      osc.frequency.exponentialRampToValueAtTime(41, now + 0.45);
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(52, now + 0.45);
 
-      sub.type = 'sine';
-      sub.frequency.setValueAtTime(46, now);
-      sub.frequency.exponentialRampToValueAtTime(28, now + 0.5);
+      mid.type = 'square';
+      mid.frequency.setValueAtTime(280, now);
+      mid.frequency.exponentialRampToValueAtTime(95, now + 0.45);
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(280, now);
-      filter.frequency.exponentialRampToValueAtTime(75, now + 0.45);
+      filter.frequency.setValueAtTime(680, now);
+      filter.frequency.exponentialRampToValueAtTime(140, now + 0.45);
 
-      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.setValueAtTime(0.22, now);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.52);
 
       osc.connect(filter);
-      sub.connect(filter);
+      mid.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      sub.start(now);
+      mid.start(now);
       osc.stop(now + 0.55);
-      sub.stop(now + 0.55);
-      this.playGlitch(0.8);
+      mid.stop(now + 0.55);
+      this.playGlitch(0.85);
     } catch {
       // Ignore audio scheduling errors
     }
@@ -338,7 +400,7 @@ class MachineAudioEngine {
   public playAlarm(): void {
     if (!this.enabled) return;
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
@@ -357,9 +419,9 @@ class MachineAudioEngine {
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1400, now);
+      filter.frequency.setValueAtTime(1600, now);
 
-      gain.gain.setValueAtTime(0.09, now);
+      gain.gain.setValueAtTime(0.16, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
 
       osc1.connect(filter);
@@ -380,18 +442,18 @@ class MachineAudioEngine {
   public playMaskSyncTick(progress: number): void {
     if (!this.enabled) return;
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      const baseFreq = 180 + progress * 6.5;
-      osc.type = 'sine';
+      const baseFreq = 220 + progress * 7.5;
+      osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(baseFreq, now);
 
-      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.setValueAtTime(0.09, now);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
 
       osc.connect(gain);
@@ -408,25 +470,25 @@ class MachineAudioEngine {
   public playConnectionRestored(): void {
     if (!this.enabled) return;
     const ctx = this.ensureContext();
-    if (!ctx || ctx.state !== 'running') return;
+    if (!ctx || ctx.state === 'closed') return;
 
     try {
       const now = ctx.currentTime;
-      const freqs = [55, 110, 164.81, 220, 329.63];
+      const freqs = [110, 164.81, 220, 329.63, 440];
 
       freqs.forEach((f, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = idx < 2 ? 'sawtooth' : 'sine';
+        osc.type = idx < 2 ? 'sawtooth' : 'triangle';
         osc.frequency.setValueAtTime(f, now);
 
         const filter = ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(600, now);
-        filter.frequency.exponentialRampToValueAtTime(120, now + 2.6);
+        filter.frequency.setValueAtTime(950, now);
+        filter.frequency.exponentialRampToValueAtTime(180, now + 2.6);
 
         gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.055 / (idx + 1), now + 0.15);
+        gain.gain.linearRampToValueAtTime(0.09 / (idx + 1), now + 0.15);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
 
         osc.connect(filter);
@@ -466,11 +528,11 @@ class MachineAudioEngine {
         const kickOsc = this.ctx.createOscillator();
         const kickGain = this.ctx.createGain();
         kickOsc.type = 'sine';
-        kickOsc.frequency.setValueAtTime(150, now);
-        kickOsc.frequency.exponentialRampToValueAtTime(36, now + 0.09);
-        kickOsc.frequency.exponentialRampToValueAtTime(24, now + 0.24);
+        kickOsc.frequency.setValueAtTime(165, now);
+        kickOsc.frequency.exponentialRampToValueAtTime(48, now + 0.09);
+        kickOsc.frequency.exponentialRampToValueAtTime(32, now + 0.24);
 
-        kickGain.gain.setValueAtTime(0.26, now);
+        kickGain.gain.setValueAtTime(0.32, now);
         kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
 
         kickOsc.connect(kickGain);
@@ -485,13 +547,13 @@ class MachineAudioEngine {
         const subGain = this.ctx.createGain();
         const filter = this.ctx.createBiquadFilter();
         subOsc.type = 'sawtooth';
-        const rootNote = 41.2 + (seed % 4) * 2.5;
+        const rootNote = 55 + (seed % 4) * 4;
         subOsc.frequency.setValueAtTime(rootNote, now);
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(130, now);
+        filter.frequency.setValueAtTime(210, now);
 
-        subGain.gain.setValueAtTime(0.11, now);
+        subGain.gain.setValueAtTime(0.15, now);
         subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
 
         subOsc.connect(filter);
@@ -504,20 +566,23 @@ class MachineAudioEngine {
       // Metallic industrial hi-hat on offbeats (2, 6, 10, 14)
       if (step % 4 === 2) {
         const bufferSize = Math.floor(this.ctx.sampleRate * 0.05);
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const buffer = this.ctx.createBuffer(
+          1,
+          bufferSize,
+          this.ctx.sampleRate
+        );
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
           data[i] = Math.random() * 2 - 1;
         }
-        const hat = this.ctx.createBufferSource();
-        hat.buffer = buffer;
+        const hat = this.createBufferSource(buffer);
 
         const hp = this.ctx.createBiquadFilter();
         hp.type = 'highpass';
         hp.frequency.setValueAtTime(5500, now);
 
         const hatGain = this.ctx.createGain();
-        hatGain.gain.setValueAtTime(0.045, now);
+        hatGain.gain.setValueAtTime(0.065, now);
         hatGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
         hat.connect(hp);
@@ -527,7 +592,10 @@ class MachineAudioEngine {
       }
 
       // Acid / Modular telemetry sequence
-      const pattern = [110, 0, 116.5, 110, 0, 130.8, 110, 146.8, 110, 0, 116.5, 0, 164.8, 110, 116.5, 98];
+      const pattern = [
+        110, 0, 116.5, 110, 0, 130.8, 110, 146.8, 110, 0, 116.5, 0, 164.8, 110,
+        116.5, 98,
+      ];
       const note = pattern[(step + seed) % pattern.length];
       if (note > 0) {
         const synth = this.ctx.createOscillator();
@@ -541,7 +609,7 @@ class MachineAudioEngine {
         sFilter.frequency.setValueAtTime(600 + (step % 5) * 280, now);
         sFilter.Q.setValueAtTime(5.5, now);
 
-        sGain.gain.setValueAtTime(0.05, now);
+        sGain.gain.setValueAtTime(0.075, now);
         sGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
 
         synth.connect(sFilter);
@@ -557,6 +625,12 @@ class MachineAudioEngine {
 
     triggerStep();
     this.transmissionTimer = window.setInterval(triggerStep, stepMs);
+  }
+
+  private createBufferSource(buffer: AudioBuffer): AudioBufferSourceNode {
+    const src = this.ctx!.createBufferSource();
+    src.buffer = buffer;
+    return src;
   }
 
   public stopTransmission(): void {
